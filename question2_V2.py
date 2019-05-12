@@ -118,6 +118,16 @@ def hit_or_miss(N):
     return hits,misses
 
 
+N10 = hit_or_miss(10)
+N100 = hit_or_miss(100)
+N1000 = hit_or_miss(1000)
+
+
+print('For N=10', N10[0]/10*100,'% of the hits were successful')
+print('For N=100', N100[0],'% of the hits were successful')
+print('For N=1000', N1000[0]/10,'% of the hits were successful')
+
+
 
 
 
