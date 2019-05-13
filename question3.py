@@ -142,9 +142,11 @@ plt.clf()
 from scipy import ndimage
 from scipy import signal, misc
 
+# Import some image data
 from skimage import data
 camera = data.camera()
 
+# Define grid
 x1 = np.linspace(-1.5, 1.5, 512)
 y1 = np.linspace(-1.5, 1.5, 512)
 [X,Y] = np.meshgrid(x1,y1)
@@ -152,13 +154,17 @@ r1 = np.sqrt(X**2 + Y**2)
 
 v_I = np.vectorize(I) # Vectorize point spread function
 z1 = v_I(I_0, 0.2, r1)
+
+# Convolution
 conv = signal.fftconvolve(camera,z1) # other methods took indefinite time
 
+# Plotting original image
 plt.figure(0)
 plt.imshow(camera)
 plt.title("Original Image")
 plt.show()
 
+# Plotting convolved image
 plt.figure(1)
 plt.imshow(conv)
 plt.title("Convolved Image")
