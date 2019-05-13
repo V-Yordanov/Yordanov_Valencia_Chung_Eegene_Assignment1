@@ -66,8 +66,8 @@ y_1 = J(1, x)
 y_2 = J(2, x)
 y_3 = J(3, x)
 
+#plotting bessel function for m =0,1,2
 plt.figure(figsize=(10,6))
-#ploting bessel function for m =0,1,2
 plt.plot(x, y_0, label='simpson: m=0', marker='.', linestyle='none', color='b')
 plt.plot(x, y_1, label='simpson: m=1', marker='.', linestyle='none', color='orange')
 plt.plot(x, y_2, label='simpson: m=2', marker='.', linestyle='none', color='g')
@@ -99,25 +99,28 @@ plt.clf()
 
 def I(I_0, lamb, r):
     """
-    Intensity pattern from the telescope.
+    Intensity pattern (point spread function) from the telescope.
     I_0     intensity at the centre
     lamb    wavelength of light
     r       is defined to be equal to aq/R
     """
     x = 2*np.pi*r / lamb  
 #    return I_0 * (2*J(1,x)/x)**2
+    # use scipy special function bessel function to speed things up
     return I_0 * (2*sc.special.jv(1, x)/x)**2
 
+# define intensity parameters
+I_0 = 1     # intensity at centre
+lamb = 0.5  # wavelength in µm
 
-I_0 = 1
-lamb = 0.5 #in µm
-
+# create a 2d grid
 x = np.arange(-1, 1, 0.01)
 y = np.arange(-1, 1, 0.01)
 xx, yy = np.meshgrid(x, y)
 r = np.sqrt(xx**2 + yy**2)
 z = I(I_0, lamb, r)
 
+# plot intensity pattern
 plt.figure(figsize=(6,6))
 plt.imshow(z, extent=[-1,1,-1,1])
 plt.title("Intensity Pattern (Normal)\nwith I_0 = {0}, $\lambda$ = {1}µm".format(I_0,lamb))
@@ -126,6 +129,7 @@ plt.ylabel("y in µm")
 plt.show()
 plt.clf()
 
+# plot intensity pattern with higher contrast to see the behaviour more clearly
 plt.figure(figsize=(6,6))
 plt.imshow(z, vmin = 0, vmax = 0.1, extent=[-1,1,-1,1])
 plt.title("Intensity Pattern (High Contrast vmax = 0.1)\nwith I_0 = {0}, $\lambda$ = {1}µm".format(I_0,lamb))
@@ -139,8 +143,7 @@ plt.clf()
 
 # Question 3 c
 
-from scipy import ndimage
-from scipy import signal, misc
+from scipy import signal
 
 # Import some image data
 from skimage import data
@@ -152,8 +155,8 @@ y1 = np.linspace(-1.5, 1.5, 512)
 [X,Y] = np.meshgrid(x1,y1)
 r1 = np.sqrt(X**2 + Y**2)
 
-v_I = np.vectorize(I) # Vectorize point spread function
-z1 = v_I(I_0, 0.2, r1)
+v_I = np.vectorize(I)  # Vectorize point spread function
+z1 = v_I(I_0, 0.2, r1) # values of point spread function on this grid
 
 # Convolution
 conv = signal.fftconvolve(camera,z1) # other methods took indefinite time
