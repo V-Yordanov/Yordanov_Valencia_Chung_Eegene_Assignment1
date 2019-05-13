@@ -6,17 +6,17 @@ import random
 class Ship:
     """ A class of spaceships!"""
     
-    def __init__(self, name, type, laser, shield, hull_strength):
+    def __init__(self, name, kind, laser, shield, hull_strength):
         """ (Ship, str, str, float, float, float) -> NoneType
         
-        A Ship with a name, type, laser power, shield strength, and hull strength.
+        A Ship with a name, kind, laser power, shield strength, and hull strength.
         
-        Type can only be one of: Standard Spaceship, Warship, Speeder
+        Kind can only be one of: Standard Spaceship, Warship, Speeder
         
         >>> myship = Ship('MyAwesomeShip', 'Standard Spaceship', 10., 50., 100.)
         >>> myship.name
         'MyAwesomeShip'
-        >>> myship.type
+        >>> myship.kind
         'Standard Spaceship'
         >>> myship.laser
         10.
@@ -26,15 +26,10 @@ class Ship:
         100.
         """
         self.name = name
-        if self.type == 'Warship':
-            self = Warship(self)
-        elif self.type == 'Speeder':
-            self = Speeder(self)
-        else:
-            self.type = "Standard Spaceship"
-            self.laser = laser
-            self.shield = shield
-            self.hull_strength = hull_strength
+        self.kind = kind #'Standard Spaceship'
+        self.laser = laser
+        self.shield = shield
+        self.hull_strength = hull_strength
         
     def __str__(self):
         """ (Ship) -> str
@@ -43,10 +38,10 @@ class Ship:
         
         >>> myship = Ship('MyAwesomeShip', 'Standard Spaceship', 10., 50., 100.)
         >>> str(myship)
-        'MyAwesomeShip, type: Standard Spaceship, laser: 10., shield: 50., hull strength: 100.'
+        'MyAwesomeShip, kind: Standard Spaceship, laser: 10., shield: 50., hull strength: 100.'
         """
         
-        return self.name + ', type: ' + self.type + ', laser: ' + str(self.laser) + ', shield: ' + str(self.shield) + ', hull strength ' + str(self.hull_strength)
+        return self.name + ', kind: ' + self.kind + ', laser: ' + str(self.laser) + ', shield: ' + str(self.shield) + ', hull strength ' + str(self.hull_strength)
         
     def status(self):
         """ (Ship) -> NoneType
@@ -57,7 +52,7 @@ class Ship:
         >>> myship.status()
         'Current Status of 'MyAwesomeShip': laser: 10., shield: 50., hull strength: 100.'
         """
-        print('Current Status of {3}: laser: {0}, shield: {1}, hull strength: {2}'format(self.laser, self.shield, self.hull_strength, self.name)
+        print('Current Status of {3}: laser: {0}, shield: {1}, hull strength: {2}'.format(self.laser, self.shield, self.hull_strength, self.name))
     
     def is_shot(self, other, other_laser):
         """ (Ship, Ship, int) -> NoneType
@@ -71,16 +66,16 @@ class Ship:
         'Current Status of 'Albert Einstein': laser: 10., shield: 30., hull strength: 100.'
         """
         shield_life = self.shield - other_laser
-        if self.is_speeder():
-            self.dodge()
+        if (self.is_speeder() and (self.dodge() == True)):
+            pass
         else:
             if shield_life >= 0:
                 self.shield = shield_life
             else:
                 self.shield = 0
-                self.hull_strength -= 0.5 * shield_life
+                self.hull_strength += 0.5 * shield_life
                 if self.hull_strength <= 0:
-                    self.hull_stregnth = 0
+                    self.hull_strength = 0
                     print(self.name + ' is destroyed!')
             
     def shoot(self, other):
@@ -95,7 +90,7 @@ class Ship:
         'Current Status of 'Albert Einstein': laser: 20., shield: 20., hull strength: 100.'
         """
         if self.is_warship():
-            self.missile()
+            self.missile(other)
         else:
             other.is_shot(self, self.laser)
     
@@ -117,6 +112,18 @@ class Ship:
             return True
         else:
             return False
+        
+    def is_warship(self):
+        """ (Ship) -> bool
+        Return True if Ship is a Warship.
+        """
+        return self.kind == 'Warship'
+    
+    def is_speeder(self):
+        """ (Ship) -> bool
+        Return True if Ship is a Speeder.
+        """
+        return self.kind == 'Speeder'
             
             
 class Warship(Ship):
@@ -124,18 +131,12 @@ class Warship(Ship):
     The Warship class!
     Special attributes: high powered missiles that fire 30% of the time with twice the amount of laser power.
     """
-    def __init__(self):
-        self.type = 'Warship'
+    def __init__(self, name, kind, laser, shield, hull_strength):
+        self.kind = 'Warship'
         self.name = name
         self.laser = laser
         self.shield = shield
         self.hull_strength = hull_strength
-        
-    def is_warship(self):
-        """ (Ship) -> bool
-        Return True if Ship is a Warship.
-        """
-        return self.type == 'Warship'
         
     def missile(self, other):
         """ (Ship, Ship) -> NoneType
@@ -154,9 +155,9 @@ class Warship(Ship):
         'Missile fired!'
         'Current Status of 'Niels Bohr': laser: 20., shield: 10., hull strength: 100.'
         """
-        if (self.is_warship() and (random.uniform() < 0.3)):
+        if (self.is_warship() and (random.uniform(0,1) < 0.3)):
             other.is_shot(self, 2 * self.laser)
-            print('Missile fired!')
+            print('Missile fired by {0}!'.format(self.name))
         else:
             other.is_shot(self, self.laser)
             print('Missile did not fire.')
@@ -166,21 +167,15 @@ class Speeder(Ship):
     The Speeder class!
     Special attributes: 50% chance of dodging incoming shots.
     """
-    def __init__(self):
-        self.type = 'Speeder'
+    def __init__(self, name, kind, laser, shield, hull_strength):
+        self.kind = 'Speeder'
         self.name = name
         self.laser = laser
         self.shield = shield
         self.hull_strength = hull_strength    
         
-    def is_speeder(self):
-        """ (Ship) -> bool
-        Return True if Ship is a Speeder.
-        """
-        return self.type == 'Speeder'
-        
     def dodge(self):
-        """ (Ship, Ship) -> NoneType
+        """ (Ship) -> Bool
         
         Dodges one incoming shot from 'other' with 50% chance.
         
@@ -195,35 +190,36 @@ class Speeder(Ship):
         'Missile fired!'
         'Current Status of 'Albert Einstein': laser: 20., shield: 10., hull strength: 100.'
         """
-        if (self.is_speeder() and (random.uniform() < 0.5)):
-            print('Successfully dodged the shot!')
+        if (self.is_speeder() and (random.uniform(0,1) < 0.5)):
+            print('{0} successfully dodged the shot!'.format(self.name))
+            return True
         else:
-            if shield_life >= 0:
-                self.shield = shield_life
-            else:
-                self.shield = 0
-                self.hull_strength -= 0.5 * shield_life
+            return False
             
-            print('Missile did not fire.')
+
 
         
 
 if __name__ == '__main__':
-    ss = Ship("Schroedinger", 'Speeder', 20., 30., 100.)
-    w = Ship("Einstein", 'Warship', 15., 40., 90.)
+    ss = Speeder("Schroedinger", 'Speeder', 20., 20., 70.)
+    w = Warship("Einstein", 'Warship', 20., 40., 100.)
     s1 = Ship("Bohr", 'Standard Spaceship',  20., 60., 100.)
     s2 = Ship("Rutherford", 'Standard Spaceship',  20., 60., 100.)
     s3 = Ship("Curie", 'Standard Spaceship',  20., 60., 100.)
     
     alive = [ss,w,s1,s2,s3]
-    while len(alive) > 1
+    round = 0
+    while len(alive) > 1:
         for s in alive:
-            other = random.choice(ships)
+            other = random.choice(alive)
             if s != other:
+                round +=1
+                print("\nRound {0}:".format(round))
+                print("{0} shot {1}!".format(s.name, other.name))
                 s.shoot(other)
                 s.status()
                 other.status()
                 if other.is_destroyed():
                     alive.remove(other)
-    print("The final victor is {0}!!!".format(str(alive[0])))
+    print("\nThe final victor is {0}!!!".format((alive[0]).name))
             
