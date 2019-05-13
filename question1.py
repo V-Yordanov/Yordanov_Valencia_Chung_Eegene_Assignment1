@@ -29,37 +29,7 @@ def name_find_replace(name,find,replace):
 
 
 
-name_find_replace('testparagraph.txt', ' is ', ' cats ')
-
-
-
-
-
-
-
-
-
-
-
-##Okay, so far I've been able to make python discern words, and match the word I
-##want to the word in the file.
-#f = open('testparagraph.txt')
-#for word in f.read().split():
-#    if word == find:
-#        word = replace
-#        print('Match')
-#    else:
-#        print('Not Match')
-
-
-    #print(contents)
-    
-    #find = ' is '
-    
-    #replace = 'zyzyzyz'
-
-
-
+name_find_replace('testparagraph2.txt', ' Bob ', ' a cat ')
 
 
 
