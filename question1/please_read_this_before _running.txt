@@ -1,0 +1,3 @@
+The 'replace' folder will be created in the directory you are running this on your local computer. 
+
+Please make sure the folder 'replace' and its content file 'replace.txt' does not already exist in this directory (or Python will yell at you).
