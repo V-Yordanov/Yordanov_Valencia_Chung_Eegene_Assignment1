@@ -1,50 +1,21 @@
-"""
-Types:
-- Standard Spaceships
-- Warships
-- Speeders
 
-Each has:
-- Lasers
-- Shields
-- Hull Strength
-- Name
-
-Warships:
-- high powered missiles which fires 30% of the time
-
-Speeders:
-- 50% chance of dodging incoming shots
-
-When a spaceship is shot by another ship:
-1) depletes its shields equal to the strength of the shot
-2) when it runs out of shields, it takes hull damage at 50% of the shot strength
-3) once hull is breached, the ship is destroyed
-
-class Ship which defines standard spaceship
-two classes which inherit from Ship called Warship and Speeder
-the classes should store the ship's shield strength, hull strength, laser power, and name
-methods: ship shoots, is shot at, ship destroyed (or not), print a diagnostic summary of ship's status
-
-instantiate 3 regular ships, 1 warship, 1 speeder
-the spaceships shoot randomly at each other until only one remains
-print a long of the battles as it progresses
-declare a final victor
-
-"""
 from numpy import *
 
 class Ship:
     """ A class of spaceships!"""
     
-    def __init__(self, name, laser, shield, hull_strength):
-        """ (Ship, str, float, float, float) -> NoneType
+    def __init__(self, name, type, laser, shield, hull_strength):
+        """ (Ship, str, str, float, float, float) -> NoneType
         
-        A Ship with a name, laser power, shield strength, and hull strength.
+        A Ship with a name, type, laser power, shield strength, and hull strength.
         
-        >>> myship = Ship('MyAwesomeShip', 10., 50., 100.)
+        Type can only be one of: Standard Spaceship, Warship, Speeder
+        
+        >>> myship = Ship('MyAwesomeShip', 'Standard Spaceship', 10., 50., 100.)
         >>> myship.name
         'MyAwesomeShip'
+        >>> myship.type
+        'Standard Spaceship'
         >>> myship.laser
         10.
         >>> myship.shield
@@ -62,18 +33,101 @@ class Ship:
         
         Return a string representation of my ship.
         
-        >>> myship = Ship('MyAwesomeShip', 10., 50., 100.)
+        >>> myship = Ship('MyAwesomeShip', 'Standard Spaceship', 10., 50., 100.)
         >>> str(myship)
-        'MyAwesomeShip, laser: 10., shield: 50., hull strength: 100.'
+        'MyAwesomeShip, type: Standard Spaceship, laser: 10., shield: 50., hull strength: 100.'
         """
         
-        return self.name + ', laser: ' + str(self.laser) + ', shield: ' + str(self.shield) + ', hull strength ' + str(self.hull_strength)
+        return self.name + ', type: ' + self.type + ', laser: ' + str(self.laser) + ', shield: ' + str(self.shield) + ', hull strength ' + str(self.hull_strength)
         
+    def status(self):
+        """ (Ship) -> NoneType
+        
+        Print the current status of the ship, including laser power, shield status, hull status.
+        
+        >>> myship = Ship('MyAwesomeShip', 'Standard Spaceship', 10., 50., 100.)
+        >>> myship.status()
+        'Current Status: laser: 10., shield: 50., hull strength: 100.'
+        """
+        print('Current Status: laser: {0}, shield: {1}, hull strength: {2}'format(self.laser, self.shield, self.hull_strength))
+    
+    def is_shot(self, other):
+        """ (Ship, Ship) -> NoneType
+        
+        'self' got shot by 'other' ship.
+        
+        >>> MyShip = Ship('Albert Einstein', 'Warship', 10., 50., 100.)
+        >>> OtherShip = Ship('Niels Bohr', 'Standard Spaceship', 20., 30., 100.)
+        >>> MyShip.is_shot(OtherShip)
+        >>> status(MyShip)
+        'Current Status: laser: 10., shield: 30., hull strength: 100.'
+        """
+        shield_life = self.shield - other.laser
+        if shield_life >= 0:
+            self.shield = shield_life
+        else:
+            self.shield = 0
+            self.hull_strength -= 0.5 * shield_life
+            
+    def shoot(self, other):
+        """ (Ship, Ship) -> NoneType
+        
+        Shoot at another ship. Deal damage.
+        
+        >>> MyShip = Ship('Albert Einstein', 'Warship', 10., 50., 100.)
+        >>> OtherShip = Ship('Niels Bohr', 'Standard Spaceship', 20., 30., 100.)
+        >>> MyShip.shoot(OtherShip)
+        >>> status(OtherShip)
+        'Current Status: laser: 20., shield: 20., hull strength: 100.'
+        """
+        other.is_shot(self)
+    
+    def is_destroyed(self):
+        """ (Ship) -> Bool
+        Returns True if ship is destroyed (hull strength = 0), and False if not (hull strength > 0)
+        
+        >>> MyShip = Ship('Albert Einstein', 'Warship', 10., 0., 10.)
+        >>> OtherShip = Ship('Niels Bohr', 'Standard Spaceship', 20., 30., 100.)
+        >>> MyShip.is_destroyed()
+        False
+        >>> MyShip.is_shot(OtherShip)
+        >>> status(MyShip)
+        'Current Status: laser: 10., shield: 0., hull strength: 0.'
+        >>> MyShip.is_destroyed()
+        True 
+        """
+        if self.hull_strength <= 0:
+            return True
+        else:
+            return False
+            
+            
+class Warship(Ship):
+    """ 
+    The Warship class!
+    Special attributes: high powered missiles that fire 30% of the time with twice the amount of laser power.
+    """
+    def is_warship(self):
+        """ (Ship) -> bool
+        Return True if Ship is a Warship.
+        """
+        return self.type == 'Warship'
+        
+    def missile(self, other):
+        """ (Ship, Ship) -> NoneType
+        Fire a high powered missile with 2x laser power with a 30% chance.
+        >>> MyShip = Ship('Albert Einstein', 'Warship', 10., 50., 100.)
+        >>> OtherShip = Ship('Niels Bohr', 'Standard Spaceship', 20., 30., 100.)
+        >>> MyShip.missle(OtherShip)
+        'Missile did not fire!'
+        >>> status(OtherShip)
+        'Current Status: laser: 20., shield: 30., hull strength: 100.'
+        """
 
 if __name__ == '__main__':
     
-    s1 = Ship("Albert Einstein", 10., 50., 100.)
-    s2 = Ship("Niels Bohr", 20., 40., 100.)
+    s1 = Ship("Albert Einstein", 'Warship' 10., 50., 100.)
+    s2 = Ship("Niels Bohr", 'Standard Spaceship',  20., 40., 100.)
     
     print(s1)
     print(s2)
